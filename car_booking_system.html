@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Car Booking System</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Sarabun', 'sans-serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: inline !important;
+            }
+
+            body {
+                background-color: white;
+                color: black;
+                padding: 0;
+            }
+
+            main {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<div id="homePage" class="text-center py-20">
+
+  <div class="max-w-7xl mx-auto p-4">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-slate-800">
+    ระบบจองรถหน่วยงาน
+    </h1>
+
+    <p class="text-slate-500 mt-2">
+        Car Booking System
+    </p>
+</div>
+
+  <div class="flex justify-center gap-6">
+
+    <button
+      onclick="showUser()"
+     class="mt-3 bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        User
+    </button>
+
+    </button>
+
+    <button
+      onclick="showAdminLogin()"
+      class="mt-3 bg-slate-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        Admin
+    </button>
+
+    </button>
+
+  </div>
+
+</div>
+<body class="bg-slate-100">
+
+
+
+  <div class="flex justify-end gap-2 mb-4">
+
+
+</div>
+  <div id="adminPanel" class="hidden bg-white p-4 rounded shadow mt-4">
+
+  <h2 class="font-bold text-xl mb-3">
+    จัดการรายการจอง
+  </h2>
+
+  <table class="w-full border">
+    <thead class="bg-slate-800 text-white">
+      <tr>
+        <th class="border px-4 py-3">ผู้จอง</th>
+        <th class="border px-4 py-3">รถ</th>
+        <th class="border px-4 py-3">วันที่เริ่มใช้</th>
+        <th class="border px-4 py-3">สถานะ</th>
+        <th class="border px-4 py-3">จัดการ</th>
+      </tr>
+    </thead>
+
+    <tbody id="bookingTable"></tbody>
+
+  </table>
+
+</div>
+   <div id="loginPanel"
+     class="hidden max-w-5xl mx-auto">
+
+  <h2 class="font-bold text-xl mb-3">
+    เข้าสู่ระบบแผนก
+  </h2>
+
+  <div class="grid md:grid-cols-2 gap-3">
+
+    <select id="loginDepartment"
+            class="border p-2 rounded">
+
+      <option value="">เลือกแผนก</option>
+      <option>IT</option>
+      <option>HR</option>
+      <option>การเงิน</option>
+      <option>พัสดุ</option>
+      <option>วิจัย</option>
+
+    </select>
+
+    <input
+      id="departmentPassword"
+      type="password"
+      class="border border-slate-300 p-3 rounded-lg"
+      placeholder="รหัสผ่าน">
+
+  </div>
+
+  <button
+      onclick="departmentLogin()"
+      class="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg font-semibold transition">
+
+      เข้าสู่ระบบ
+
+  </button>
+
+</div>
+  </div>
+
+  <div id="userPanel"
+     class="hidden max-w-4xl mx-auto">
+
+    <div class="flex flex-col gap-4">
+
+        <!-- ซ้าย -->
+        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+
+            <h2 class="text-xl font-bold mb-4">
+                สถานะการจอง
+            </h2>
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full border border-slate-200 p-3 text-center text-sm ">
+
+                    <thead class="bg-blue-500 text-white rounded-lg">
+
+                        <tr>
+                            <th class="p-2">แผนก</th>
+                            <th class="p-2">ผู้จอง</th>
+                            <th class="p-2">รถ</th>
+                            <th class="p-2">วันและเวลาที่เริ่มใช้งาน</th>
+                            <th class="p-2">วันและเวลาที่ต้องการคืนรถ</th>
+                            <th class="p-2">จำนวนผู้โดยสาร</th>
+                            <th class="p-2">สถานะ</th>
+                            <th class="p-2">ยกเลิก</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="publicBookingTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        
+        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+
+            <h2 class="font-bold text-xl mb-3">
+                แบบฟอร์มจองรถ
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-3">
+
+                <input id="name"
+                    class="border border-slate-300 p-3 rounded-lg w-full md:col-span-2"
+                    placeholder="ชื่อผู้จอง">
+
+                <select id="department"
+                    disabled
+                    class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2">
+
+                    <option value="">เลือกแผนก</option>
+                    <option>IT</option>
+                    <option>HR</option>
+                    <option>การเงิน</option>
+                    <option>พัสดุ</option>
+                    <option>วิจัย</option>
+
+                </select>
+
+               
+
+                <select id="car" class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2">
+                    <option value="p-2">เลือกรถ</option>
+    <option value="รถตู้ 1 | กข-1234">รถตู้ 1 (กข-1234)</option>
+    <option value="รถตู้ 2 | กข-5678">รถตู้ 2 (กข-5678)</option>
+    <option value="รถกระบะ 1 | บย-1111">รถกระบะ 1 (บย-1111)</option>
+    <option value="รถกระบะ 2 | บย-2222">รถกระบะ 2 (บย-2222)</option>
+</select>
+
+                <div>
+    <label class="block text-sm font-medium text-slate-700 mb-1">
+        วันที่เริ่มใช้งาน
+    </label>
+    <input id="startDate" type="date"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-slate-700 mb-1">
+        เวลาเริ่มใช้งาน
+    </label>
+    <input id="startTime" type="time"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-slate-700 mb-1">
+        วันที่คืนรถ
+    </label>
+    <input id="endDate" type="date"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+</div>
+
+<div>
+    <label class="block text-sm font-medium text-slate-700 mb-1">
+        เวลาคืนรถ
+    </label>
+    <input id="endTime" type="time"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+</div>
+
+            <textarea
+                id="purpose"
+                class="border border-slate-300 p-3 rounded-lg w-full mt-3"
+                placeholder="วัตถุประสงค์"></textarea>
+
+            <input
+                id="passenger"
+                type="number"
+                class="border border-slate-300 p-3 rounded-lg mt-3 w-full"
+                placeholder="จำนวนผู้โดยสาร">
+
+          <div class="mt-8 flex justify-center gap-4">
+    <button
+        onclick="saveBooking()"
+        class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        ส่งคำขอจองรถ
+    </button>
+
+    <button
+        onclick="logoutDepartment()"
+        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        ออกจากระบบ
+    </button>
+</div>
+</div>
+</div>
+
+            </div>
+
+    
+
+  <div id="adminLoginPanel" class="hidden bg-white p-4 rounded shadow mt-4">
+
+    <h2 class="font-bold text-xl mb-3">
+        เข้าสู่ระบบ Admin
+    </h2>
+
+    <input
+        id="adminPassword"
+        type="password"
+        placeholder="รหัสผ่าน Admin"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+
+    <button
+        onclick="adminLoginSubmit()"
+        class="mt-3 bg-slate-800 text-white px-4 py-2 rounded">
+        เข้าสู่ระบบ
+    </button>
+
+</div>
+</thead>
+      <tbody id="bookingTable"></tbody>
+    </table>
+  </div>
+            </thead>
+
+            <tbody id="publicBookingTable">
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxYMyFbM3QSOYWOtjozJjB1O7rAKZi9q5MqZojDH_CXN7EujPw23NJdCfXSY1z_LzQcUA/exec";
+const ADMIN_PASSWORD = "fleet2026";
+
+const DEPARTMENT_ACCOUNTS = {
+  "IT":"it2026",
+  "HR":"hr2026",
+  "การเงิน":"fin2026",
+  "พัสดุ":"store2026",
+  "วิจัย":"research2026"
+};
+
+function showUser(){
+
+  document.getElementById("loginPanel")
+      .classList.remove("hidden");
+
+  document.getElementById("adminLoginPanel")
+      .classList.add("hidden");
+
+  document.getElementById("adminPanel")
+      .classList.add("hidden");
+
+  document.getElementById("publicBookingSection")
+      .classList.remove("hidden");
+}
+
+function showAdminLogin(){
+
+    document.getElementById("loginPanel")
+      .classList.remove("hidden");
+      
+    document.getElementById("adminLoginPanel")
+        .classList.remove("hidden");
+
+    document.getElementById("adminPanel")
+        .classList.add("hidden");
+
+    document.getElementById("userPanel")
+        .classList.add("hidden");
+
+    document.getElementById("publicBookingSection")
+  .classList.add("hidden");
+
+}
+function adminLoginSubmit(){
+
+    const password =
+        document.getElementById("adminPassword").value;
+
+    if(password !== ADMIN_PASSWORD){
+
+        alert("รหัสผ่านไม่ถูกต้อง");
+        return;
+    }
+
+    document.getElementById("adminLoginPanel")
+        .classList.add("hidden");
+
+    document.getElementById("adminPanel")
+        .classList.remove("hidden");
+
+    loadBookings();
+}
+function departmentLogin(){
+
+    const dept =
+        document.getElementById("loginDepartment").value;
+
+    const password =
+        document.getElementById("departmentPassword").value;
+
+    if(!dept){
+        alert("กรุณาเลือกแผนก");
+        return;
+    }
+
+    if(DEPARTMENT_ACCOUNTS[dept] !== password){
+        alert("รหัสผ่านไม่ถูกต้อง");
+        return;
+    }
+
+    localStorage.setItem(
+        "myDepartment",
+        dept
+    );
+
+    document.getElementById("loginPanel")
+        .classList.add("hidden");
+
+    document.getElementById("userPanel")
+        .classList.remove("hidden");
+
+    document.getElementById("department").value = dept;
+
+    document.getElementById("department").disabled = true;
+
+    loadPublicBookings();
+}
+async function saveBooking(){
+    if(!department.value){
+    alert("กรุณาเลือกแผนก");
+    return;
+  }
+  const data = {
+    action:"create",
+    name:name.value,
+    department:department.value,
+    phone:phone.value,
+    car:car.value,
+    startDate:startDate.value,
+    startTime:startTime.value,
+    endDate:endDate.value,
+    endTime:endTime.value,
+    purpose:purpose.value,
+    passenger:passenger.value
+    
+  };
+
+  if(API_URL.includes("PUT_YOUR")){
+    alert("https://script.google.com/macros/s/AKfycbxYMyFbM3QSOYWOtjozJjB1O7rAKZi9q5MqZojDH_CXN7EujPw23NJdCfXSY1z_LzQcUA/exec");
+    return;
+  }
+
+  const res = await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify(data)
+  });
+
+  const result = await res.json();
+
+localStorage.setItem(
+  "myBookingId",
+  result.bookingId
+);
+
+localStorage.setItem(
+  "myDepartment",
+  department.value
+);
+
+ alert("ส่งคำขอจองรถเรียบร้อย");
+
+function logoutDepartment(){
+
+    localStorage.removeItem("myDepartment");
+
+    location.reload();
+}
+
+loadPublicBookings();
+}
+
+async function loadBookings(){
+
+  const res = await fetch(API_URL);
+  const rows = await res.json();
+
+  const table = document.getElementById("bookingTable");
+  table.innerHTML = "";
+
+  rows.slice(1).forEach(r=>{
+    table.innerHTML += `
+<tr class="hover:bg-slate-50 transition">
+
+    <td class="border px-4 py-2 font-medium">
+        ${r[2] || ""}
+    </td>
+
+    <td class="border px-4 py-2">
+        ${r[5] || ""}
+    </td>
+
+    <td class="border px-4 py-2">
+        ${r[6] || ""}
+    </td>
+
+    <td class="border px-4 py-2">
+        <span class="
+            px-3 py-1 rounded-full text-xs font-bold
+            ${
+              r[12] === "อนุมัติ"
+                ? "bg-green-100 text-green-700"
+                : r[12] === "ไม่อนุมัติ"
+                ? "bg-red-100 text-red-700"
+                : r[12] === "ยกเลิก"
+                ? "bg-gray-100 text-gray-700"
+                : "bg-yellow-100 text-yellow-700"
+                
+            }
+        ">
+            ${r[12] 
+            =="ยกเลิก"
+            ? "ยกเลิกแล้ว"
+            : (r[12] || "รออนุมัติ")
+            }
+        </span>
+    </td>
+    
+
+    <td class="border px-4 py-2">
+        <div class="flex gap-2 justify-center">
+
+            <button
+                onclick="approve('${r[0]}')"
+                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
+            >
+                ✓ อนุมัติ
+            </button>
+
+            <button
+                onclick="reject('${r[0]}')"
+                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
+            >
+                ✕ ไม่อนุมัติ
+            </button>
+
+            <button
+                onclick="deleteBooking('${r[0]}')"
+                class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-1 rounded-lg text-sm font-medium transition"
+            >
+                🗑 ลบ
+            </button>
+            
+
+        </div>
+    </td>
+
+</tr>
+`;
+  });
+}
+async function approve(id){
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"update",
+      id:id,
+      status:"อนุมัติ"
+    })
+  });
+
+  loadBookings();
+}
+async function reject(id){
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"update",
+      id:id,
+      status:"ไม่อนุมัติ"
+    })
+  });
+
+  loadBookings();
+}
+async function deleteBooking(id){
+
+  if(!confirm("ลบรายการนี้ ?"))
+    return;
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"delete",
+      id:id
+    })
+  });
+
+  loadBookings();
+}
+async function checkStatus(){
+
+
+  const res =
+    await fetch(API_URL);
+
+  const rows =
+    await res.json();
+
+  const booking =
+    rows.find(
+      row => row[0] === bookingId
+    );
+
+  const result =
+    document.getElementById(
+      "statusResult"
+    );
+
+  if(!booking){
+
+    result.innerHTML = `
+      <div class="bg-red-100 text-red-700 p-3 rounded">
+        ไม่พบข้อมูลการจอง
+      </div>
+    `;
+
+    return;
+  }
+
+  let color =
+    "bg-yellow-100 text-yellow-700";
+
+  if(booking[10] === "อนุมัติ")
+    color =
+      "bg-green-100 text-green-700";
+
+  if(booking[10] === "ไม่อนุมัติ")
+    color =
+      "bg-red-100 text-red-700";
+
+    
+
+  result.innerHTML = `
+    <div class="border rounded-lg p-4">
+
+      <div>
+        <b>เลขที่จอง :</b>
+        ${booking[0]}
+      </div>
+
+      <div>
+        <b>ผู้จอง :</b>
+        ${booking[2]}
+      </div>
+
+      <div>
+        <b>รถ :</b>
+        ${booking[5]}
+      </div>
+
+      <div>
+        <b>วันที่ใช้ :</b>
+        ${booking[6]}
+      </div>
+
+      <div class="mt-3">
+
+        <span class="
+          px-3 py-1 rounded-full
+          font-bold
+          ${color}
+        ">
+          ${booking[10]}
+        </span>
+
+      </div>
+
+    </div>
+  `;
+}
+async function loadPublicBookings(){
+
+    const res = await fetch(API_URL);
+    const rows = await res.json();
+    
+
+    const table =
+      document.getElementById("publicBookingTable");
+
+    table.innerHTML = "";
+
+   
+
+  const myDepartment =
+  localStorage.getItem("myDepartment");
+
+    rows.slice(1).forEach(r=>{
+
+        let badge = `
+            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                รออนุมัติ
+            </span>`;
+
+        if(r[13] === "อนุมัติ"){
+            badge = `
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                อนุมัติ
+            </span>`;
+        }
+
+        if(r[13] === "ไม่อนุมัติ"){
+            badge = `
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                ไม่อนุมัติ
+            </span>`;
+        }
+        if(r[13] === "ยกเลิก"){
+    badge = `
+    <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+        ยกเลิก
+    </span>`;
+}
+
+        table.innerHTML += `
+        <tr class="border-b hover:bg-slate-50">
+
+            <td class="p-3 text-center">${r[3] || "-"}</td>
+            <td class="p-3 text-center">${r[2] || "-"}</td>
+            <td class="p-3 text-center">${r[6] || "-"}</td>
+            <td class="p-3 text-center">
+  ${r[7]
+    ? new Date(r[7]).toLocaleDateString("th-TH")
+    : "-"}
+  ${r[8] || ""}
+</td>
+
+<td class="p-3 text-center">
+  ${r[9]
+    ? new Date(r[9]).toLocaleDateString("th-TH")
+    : "-"}
+  ${r[10] || ""}
+</td>
+            <td class="p-3 text-center">${r[12] || "-"}</td> 
+            <td class="p-3">${badge}</td>
+            <td class="p-3"> ${r[3] === myDepartment &&
+  r[13] !== "ยกเลิก"
+
+  ?
+
+  `<button
+      onclick="cancelBooking('${r[0]}')"
+      class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded">
+      ยกเลิก
+   </button>`
+
+  :
+
+  "-"
+}
+  </td>
+        </tr>`;
+    });
+
+}
+async function cancelBooking(id){
+
+    if(!confirm("ต้องการยกเลิกการจองนี้หรือไม่ ?"))
+        return;
+
+    await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"update",
+            id:id,
+            status:"ยกเลิก"
+        })
+    });
+
+    loadPublicBookings();
+
+    if(!document.getElementById("adminPanel").classList.contains("hidden")){
+        loadBookings();
+    }
+}
+window.onload = () => {
+
+  const dept =
+    localStorage.getItem("myDepartment");
+
+  if(dept){
+
+    document
+      .getElementById("loginPanel")
+      .classList.add("hidden");
+
+    document
+      .getElementById("userPanel")
+      .classList.remove("hidden");
+
+    document
+      .getElementById("department")
+      .value = dept;
+
+    document.getElementById("department")
+          .disabled = true;
+  }
+
+  loadPublicBookings();
+};
+</script>
+</body>
+</html>
