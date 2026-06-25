@@ -1,3 +1,39 @@
+<!--
+=====================================================
+ไฟล์อธิบายโค้ด (ฉบับกำกับ)
+=====================================================
+
+ส่วนหลักของระบบ
+1. Head
+   - โหลด Tailwind CSS
+   - โหลด Font Sarabun
+   - ตั้งค่าหน้าจอและการพิมพ์
+
+2. Home Page
+   - หน้าเลือก User / Admin
+
+3. Admin Login
+   - เข้าสู่ระบบผู้ดูแล
+
+4. Admin Panel
+   - ตารางจัดการรายการจอง
+   - อนุมัติ / ไม่อนุมัติ / ลบ
+
+5. Department Login
+   - เข้าสู่ระบบตามแผนก
+
+6. User Panel
+   - ดูสถานะการจอง
+   - กรอกแบบฟอร์มจองรถ
+
+7. JavaScript
+   - เชื่อม Google Apps Script
+   - บันทึกข้อมูล
+   - โหลดข้อมูล
+   - อนุมัติ / ยกเลิก / ลบ
+=====================================================
+-->
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -46,6 +82,7 @@
         }
     </style>
 </head>
+<body class="bg-slate-100"></body>
 <div id="homePage" class="text-center py-20">
 
   <div class="max-w-7xl mx-auto p-4">
@@ -67,7 +104,6 @@
         User
     </button>
 
-    </button>
 
     <button
       onclick="showAdminLogin()"
@@ -80,42 +116,67 @@
   </div>
 
 </div>
-<body class="bg-slate-100">
-
-
-
   <div class="flex justify-end gap-2 mb-4">
 
-
 </div>
-  <div id="adminPanel" class="hidden bg-white p-4 rounded shadow mt-4">
 
-  <h2 class="font-bold text-xl mb-3">
-    จัดการรายการจอง
-  </h2>
+  <div id="adminLoginPanel" class="hidden  max-w-md mx-auto  p-6 rounded-xl ">
 
-  <table class="w-full border">
-    <thead class="bg-slate-800 text-white">
+     <h2 class="font-bold text-xl mb-3 rounded-xl">
+        เข้าสู่ระบบ Admin
+    </h2> <br>
+
+    <input
+        id="adminPassword"
+        type="password"
+        placeholder="รหัสผ่าน Admin"
+        class="border border-slate-300 p-3 rounded-lg w-full">
+<br> <br>
+    <button
+        onclick="adminLoginSubmit()"
+        class="mt-3 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        เข้าสู่ระบบ
+    </button>
+  </div>
+  <div id="adminPanel" class="hidden bg-white p-6 rounded-2xl shadow-xl mt-6">
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm whitespace-nowrap">
+    <thead class="bg-blue-500 text-white">
       <tr>
+        <th class="border px-4 py-3">แผนก</th>
         <th class="border px-4 py-3">ผู้จอง</th>
         <th class="border px-4 py-3">รถ</th>
-        <th class="border px-4 py-3">วันที่เริ่มใช้</th>
+        <th class="border px-4 py-3">วันที่เริ่มใช้งาน</th>
+        <th class="border px-4 py-3">เวลาที่เริ่มใช้งาน</th>
+        <th class="border px-4 py-3">วันที่ต้องการคืนรถ</th>
+        <th class="border px-4 py-3">เวลาที่ต้องการคืนรถ</th>
+        <th class="border px-4 py-3">จำนวนผู้โดยสาร</th>
         <th class="border px-4 py-3">สถานะ</th>
         <th class="border px-4 py-3">จัดการ</th>
       </tr>
     </thead>
-
     <tbody id="bookingTable"></tbody>
 
   </table>
+  </div>
+  <br>
+  <br>
+  <button
+        onclick="logoutDepartment()"
+        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        ออกจากระบบ
+    </button>
+  </div><br>
+<br>
+<br>
 
-</div>
    <div id="loginPanel"
      class="hidden max-w-5xl mx-auto">
 
   <h2 class="font-bold text-xl mb-3">
     เข้าสู่ระบบแผนก
-  </h2>
+  </h2> <br>
 
   <div class="grid md:grid-cols-2 gap-3">
 
@@ -138,10 +199,12 @@
       placeholder="รหัสผ่าน">
 
   </div>
+<br>
+<br>
 
   <button
       onclick="departmentLogin()"
-      class="mt-3 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-lg font-semibold transition">
+      class="mt-3 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl shadow-lg">
 
       เข้าสู่ระบบ
 
@@ -149,7 +212,6 @@
 
 </div>
   </div>
-
   <div id="userPanel"
      class="hidden max-w-4xl mx-auto">
 
@@ -164,26 +226,31 @@
 
             <div class="overflow-x-auto">
 
-                <table class="w-full border border-slate-200 p-3 text-center text-sm ">
+                <table class="w-full table-fixed border border-slate-200 text-center text-sm">
 
-                    <thead class="bg-blue-500 text-white rounded-lg">
+    <thead class="bg-blue-500 text-white">
 
-                        <tr>
-                            <th class="p-2">แผนก</th>
-                            <th class="p-2">ผู้จอง</th>
-                            <th class="p-2">รถ</th>
-                            <th class="p-2">วันและเวลาที่เริ่มใช้งาน</th>
-                            <th class="p-2">วันและเวลาที่ต้องการคืนรถ</th>
-                            <th class="p-2">จำนวนผู้โดยสาร</th>
-                            <th class="p-2">สถานะ</th>
-                            <th class="p-2">ยกเลิก</th>
-                        </tr>
+        <tr>
+            <th class="p-2 w-16">แผนก</th>
+            <th class="p-2 w-20">ผู้จอง</th>
+            <th class="p-2 w-36">รถ</th>
 
-                    </thead>
+            <th class="p-2 w-24">วันที่เริ่มใช้งาน</th>
+            <th class="p-2 w-20">เวลาเริ่มใช้งาน</th>
 
-                    <tbody id="publicBookingTable"></tbody>
+            <th class="p-2 w-24">วันที่ต้องการคืนรถ</th>
+            <th class="p-2 w-20">เวลาที่ต้องการคืนรถ</th>
 
-                </table>
+            <th class="p-2 w-20">จำนวนผู้โดยสาร</th>
+            <th class="p-2 w-20">สถานะ</th>
+            <th class="p-2 w-20">ยกเลิก</th>
+        </tr>
+
+    </thead>
+
+    <tbody id="publicBookingTable"></tbody>
+
+</table>
 
             </div>
 
@@ -218,13 +285,24 @@
                
 
                 <select id="car" class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2">
-                    <option value="p-2">เลือกรถ</option>
-    <option value="รถตู้ 1 | กข-1234">รถตู้ 1 (กข-1234)</option>
-    <option value="รถตู้ 2 | กข-5678">รถตู้ 2 (กข-5678)</option>
-    <option value="รถกระบะ 1 | บย-1111">รถกระบะ 1 (บย-1111)</option>
-    <option value="รถกระบะ 2 | บย-2222">รถกระบะ 2 (บย-2222)</option>
-</select>
+    <option value="">เลือกรถ</option>
 
+    <option value="รถตู้ 1 (กข-1234)">
+        รถตู้ 1 (กข-1234)
+    </option>
+
+    <option value="รถตู้ 2 (กข-5678)">
+        รถตู้ 2 (กข-5678)
+    </option>
+
+    <option value="รถกระบะ 1 (บย-1111)">
+        รถกระบะ 1 (บย-1111)
+    </option>
+
+    <option value="รถกระบะ 2 (บย-2222)">
+        รถกระบะ 2 (บย-2222)
+    </option>
+</select>
                 <div>
     <label class="block text-sm font-medium text-slate-700 mb-1">
         วันที่เริ่มใช้งาน
@@ -268,16 +346,17 @@
                 class="border border-slate-300 p-3 rounded-lg mt-3 w-full"
                 placeholder="จำนวนผู้โดยสาร">
 
-          <div class="mt-8 flex justify-center gap-4">
+          <br>
     <button
         onclick="saveBooking()"
-        class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        class="bg-slate-500 hover:bg-blue-600 text-white border border-slate-300 p-3 rounded-lg w-full md:col-span-2">
+      
         ส่งคำขอจองรถ
-    </button>
+    </button> 
 
     <button
         onclick="logoutDepartment()"
-        class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-xl shadow-lg">
+        class="bg-red-500 hover:bg-red-600 text-white border border-slate-300 p-3 rounded-lg w-full md:col-span-2">
         ออกจากระบบ
     </button>
 </div>
@@ -285,47 +364,10 @@
 </div>
 
             </div>
-
-    
-
-  <div id="adminLoginPanel" class="hidden bg-white p-4 rounded shadow mt-4">
-
-    <h2 class="font-bold text-xl mb-3">
-        เข้าสู่ระบบ Admin
-    </h2>
-
-    <input
-        id="adminPassword"
-        type="password"
-        placeholder="รหัสผ่าน Admin"
-        class="border border-slate-300 p-3 rounded-lg w-full">
-
-    <button
-        onclick="adminLoginSubmit()"
-        class="mt-3 bg-slate-800 text-white px-4 py-2 rounded">
-        เข้าสู่ระบบ
-    </button>
-
 </div>
-</thead>
-      <tbody id="bookingTable"></tbody>
-    </table>
-  </div>
-            </thead>
-
-            <tbody id="publicBookingTable">
-
-            </tbody>
-
-        </table>
-
-    </div>
-</div>
-</div>
-
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxYMyFbM3QSOYWOtjozJjB1O7rAKZi9q5MqZojDH_CXN7EujPw23NJdCfXSY1z_LzQcUA/exec";
-const ADMIN_PASSWORD = "fleet2026";
+const API_URL = "https://script.google.com/macros/s/AKfycbyLCBz3BT9KtJrzwdNflqAkpGClzBDhMcflPItGX4eO6YCqZ3EwN6Wy2JnPGJA3Cigjgg/exec";
+const ADMIN_PASSWORD = "admin2026";
 
 const DEPARTMENT_ACCOUNTS = {
   "IT":"it2026",
@@ -346,26 +388,20 @@ function showUser(){
   document.getElementById("adminPanel")
       .classList.add("hidden");
 
-  document.getElementById("publicBookingSection")
-      .classList.remove("hidden");
+  
 }
 
 function showAdminLogin(){
+  
 
     document.getElementById("loginPanel")
-      .classList.remove("hidden");
-      
-    document.getElementById("adminLoginPanel")
-        .classList.remove("hidden");
-
-    document.getElementById("adminPanel")
         .classList.add("hidden");
 
     document.getElementById("userPanel")
         .classList.add("hidden");
 
-    document.getElementById("publicBookingSection")
-  .classList.add("hidden");
+    document.getElementById("adminLoginPanel")
+        .classList.remove("hidden");
 
 }
 function adminLoginSubmit(){
@@ -423,30 +459,31 @@ function departmentLogin(){
     loadPublicBookings();
 }
 async function saveBooking(){
+  
     if(!department.value){
+
     alert("กรุณาเลือกแผนก");
     return;
   }
   const data = {
-    action:"create",
-    name:name.value,
-    department:department.value,
-    phone:phone.value,
-    car:car.value,
-    startDate:startDate.value,
-    startTime:startTime.value,
-    endDate:endDate.value,
-    endTime:endTime.value,
-    purpose:purpose.value,
-    passenger:passenger.value
-    
-  };
-
+  action:"create",
+  name:document.getElementById("name").value,
+  department:document.getElementById("department").value,
+  car:document.getElementById("car").value,
+  startDate:document.getElementById("startDate").value,
+  startTime:document.getElementById("startTime").value,
+  endDate:document.getElementById("endDate").value,
+  endTime:document.getElementById("endTime").value,
+  purpose:document.getElementById("purpose").value,
+  passenger:document.getElementById("passenger").value
+};
+console.log("ค่าชื่อ =", document.getElementById("name").value);
+console.log("ข้อมูลที่ส่ง =", data);
   if(API_URL.includes("PUT_YOUR")){
-    alert("https://script.google.com/macros/s/AKfycbxYMyFbM3QSOYWOtjozJjB1O7rAKZi9q5MqZojDH_CXN7EujPw23NJdCfXSY1z_LzQcUA/exec");
+    alert("https://script.google.com/macros/s/AKfycbyLCBz3BT9KtJrzwdNflqAkpGClzBDhMcflPItGX4eO6YCqZ3EwN6Wy2JnPGJA3Cigjgg/exec");
     return;
   }
-
+console.log(data);
   const res = await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify(data)
@@ -466,14 +503,12 @@ localStorage.setItem(
 
  alert("ส่งคำขอจองรถเรียบร้อย");
 
+loadPublicBookings();
+}
 function logoutDepartment(){
 
     localStorage.removeItem("myDepartment");
-
     location.reload();
-}
-
-loadPublicBookings();
 }
 
 async function loadBookings(){
@@ -485,68 +520,99 @@ async function loadBookings(){
   table.innerHTML = "";
 
   rows.slice(1).forEach(r=>{
+    console.log(r);
     table.innerHTML += `
-<tr class="hover:bg-slate-50 transition">
+<tr class="border-b hover:bg-slate-50">
 
-    <td class="border px-4 py-2 font-medium">
-        ${r[2] || ""}
-    </td>
+     <td class="p-3 text-center">${r[3] || "-"}</td>
 
-    <td class="border px-4 py-2">
-        ${r[5] || ""}
-    </td>
+    <td class="p-3 text-center">${r[2] || "-"}</td>
 
-    <td class="border px-4 py-2">
-        ${r[6] || ""}
-    </td>
+    <td class="p-2 text-center whitespace-nowrap">
+    ${r[4] || "-"}
+</td>
 
-    <td class="border px-4 py-2">
+    <td class="p-2 text-center">
+    ${
+      r[5]
+      ? new Date(r[5]).toLocaleDateString("th-TH")
+      : "-"
+    }
+</td>
+
+    <td class="p-2 text-center">
+    ${
+      r[6]
+      ? new Date(r[6]).toLocaleTimeString("th-TH",{
+          hour:"2-digit",
+          minute:"2-digit"
+        })
+      : "-"
+    }
+</td>
+
+    <td class="p-2 text-center">
+    ${
+      r[7]
+      ? new Date(r[7]).toLocaleDateString("th-TH")
+      : "-"
+    }
+</td>
+
+    <td class="p-2 text-center">
+    ${
+      r[8]
+      ? new Date(r[8]).toLocaleTimeString("th-TH",{
+          hour:"2-digit",
+          minute:"2-digit"
+        })
+      : "-"
+    }
+</td>
+    <td class="p-3 text-center">${r[10] || "-"}</td>
+
+
+    <td class="p-3 text-center">
         <span class="
             px-3 py-1 rounded-full text-xs font-bold
             ${
-              r[12] === "อนุมัติ"
+              r[11] === "อนุมัติ"
                 ? "bg-green-100 text-green-700"
-                : r[12] === "ไม่อนุมัติ"
+                : r[11] === "ไม่อนุมัติ"
                 ? "bg-red-100 text-red-700"
-                : r[12] === "ยกเลิก"
+                : r[11] === "ยกเลิก"
                 ? "bg-gray-100 text-gray-700"
                 : "bg-yellow-100 text-yellow-700"
-                
             }
         ">
-            ${r[12] 
-            =="ยกเลิก"
-            ? "ยกเลิกแล้ว"
-            : (r[12] || "รออนุมัติ")
+            ${
+              r[11] === "ยกเลิก"
+                ? "ยกเลิกแล้ว"
+                : (r[11] || "รออนุมัติ")
             }
         </span>
     </td>
-    
 
-    <td class="border px-4 py-2">
+    <td class="p-3">
         <div class="flex gap-2 justify-center">
 
             <button
                 onclick="approve('${r[0]}')"
-                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
-            >
+                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
                 ✓ อนุมัติ
             </button>
 
             <button
                 onclick="reject('${r[0]}')"
-                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
-            >
+                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
                 ✕ ไม่อนุมัติ
             </button>
 
             <button
                 onclick="deleteBooking('${r[0]}')"
-                class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-3 py-1 rounded-lg text-sm font-medium transition"
-            >
-                🗑 ลบ
+                class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                ลบ
             </button>
-            
 
         </div>
     </td>
@@ -629,11 +695,11 @@ async function checkStatus(){
   let color =
     "bg-yellow-100 text-yellow-700";
 
-  if(booking[10] === "อนุมัติ")
+  if(booking[11] === "อนุมัติ")
     color =
       "bg-green-100 text-green-700";
 
-  if(booking[10] === "ไม่อนุมัติ")
+  if(booking[11] === "ไม่อนุมัติ")
     color =
       "bg-red-100 text-red-700";
 
@@ -678,6 +744,7 @@ async function checkStatus(){
   `;
 }
 async function loadPublicBookings(){
+  
 
     const res = await fetch(API_URL);
     const rows = await res.json();
@@ -694,26 +761,28 @@ async function loadPublicBookings(){
   localStorage.getItem("myDepartment");
 
     rows.slice(1).forEach(r=>{
+      console.log(r);
+
 
         let badge = `
             <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
                 รออนุมัติ
             </span>`;
 
-        if(r[13] === "อนุมัติ"){
+        if(r[11] === "อนุมัติ"){
             badge = `
             <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
                 อนุมัติ
             </span>`;
         }
 
-        if(r[13] === "ไม่อนุมัติ"){
+        if(r[11] === "ไม่อนุมัติ"){
             badge = `
             <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
                 ไม่อนุมัติ
             </span>`;
         }
-        if(r[13] === "ยกเลิก"){
+        if(r[11] === "ยกเลิก"){
     badge = `
     <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
         ยกเลิก
@@ -721,43 +790,77 @@ async function loadPublicBookings(){
 }
 
         table.innerHTML += `
-        <tr class="border-b hover:bg-slate-50">
+<tr class="border-b hover:bg-slate-50">
 
-            <td class="p-3 text-center">${r[3] || "-"}</td>
-            <td class="p-3 text-center">${r[2] || "-"}</td>
-            <td class="p-3 text-center">${r[6] || "-"}</td>
-            <td class="p-3 text-center">
-  ${r[7]
-    ? new Date(r[7]).toLocaleDateString("th-TH")
-    : "-"}
-  ${r[8] || ""}
+    <td class="p-3 text-center">${r[3] || "-"}</td>
+
+    <td class="p-3 text-center">${r[2] || "-"}</td>
+
+    <td class="p-2 text-center whitespace-nowrap">
+    ${r[4] || "-"}
 </td>
 
-<td class="p-3 text-center">
-  ${r[9]
-    ? new Date(r[9]).toLocaleDateString("th-TH")
-    : "-"}
-  ${r[10] || ""}
+    <td class="p-2 text-center">
+    ${
+      r[5]
+      ? new Date(r[5]).toLocaleDateString("th-TH")
+      : "-"
+    }
 </td>
-            <td class="p-3 text-center">${r[12] || "-"}</td> 
-            <td class="p-3">${badge}</td>
-            <td class="p-3"> ${r[3] === myDepartment &&
-  r[13] !== "ยกเลิก"
 
-  ?
+    <td class="p-2 text-center">
+    ${
+      r[6]
+      ? new Date(r[6]).toLocaleTimeString("th-TH",{
+          hour:"2-digit",
+          minute:"2-digit"
+        })
+      : "-"
+    }
+</td>
 
-  `<button
-      onclick="cancelBooking('${r[0]}')"
-      class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded">
-      ยกเลิก
-   </button>`
+    <td class="p-2 text-center">
+    ${
+      r[7]
+      ? new Date(r[7]).toLocaleDateString("th-TH")
+      : "-"
+    }
+</td>
 
-  :
+    <td class="p-2 text-center">
+    ${
+      r[8]
+      ? new Date(r[8]).toLocaleTimeString("th-TH",{
+          hour:"2-digit",
+          minute:"2-digit"
+        })
+      : "-"
+    }
+</td>
+    <td class="p-3 text-center">${r[10] || "-"}</td>
 
-  "-"
-}
-  </td>
-        </tr>`;
+    <td class="p-3 text-center">
+        ${badge}
+    </td>
+
+    <td class="p-3 text-center">
+        ${
+          r[3] === myDepartment &&
+          r[11] !== "ยกเลิก" && r[11] !== "ไม่อนุมัติ" && r[11] !== "อนุมัติ"
+          ?
+          `<button
+              onclick="cancelBooking('${r[0]}')"
+              class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded">
+              ยกเลิก
+           </button>`
+          :
+         (r[11] === "อนุมัติ"
+        ? '<span class="text-green-600 font-semibold text-xs">อนุมัติแล้ว</span>'
+        : '-')
+        }
+    </td>
+
+</tr>`;
     });
 
 }
