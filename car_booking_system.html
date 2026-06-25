@@ -96,7 +96,8 @@
     </p>
 </div>
 
-  <div class="flex justify-center gap-6">
+    <div id="roleButtons" class="flex justify-center gap-4">
+  
 
     <button
       onclick="showUser()"
@@ -421,6 +422,9 @@ function adminLoginSubmit(){
     document.getElementById("adminPanel")
         .classList.remove("hidden");
 
+    document.getElementById("roleButtons")
+        .classList.add("hidden");
+
     loadBookings();
 }
 function departmentLogin(){
@@ -451,6 +455,9 @@ function departmentLogin(){
 
     document.getElementById("userPanel")
         .classList.remove("hidden");
+
+    document.getElementById("roleButtons")
+        .classList.add("hidden");
 
     document.getElementById("department").value = dept;
 
