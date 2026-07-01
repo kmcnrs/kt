@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --ink: #541A1A;
+  --navy: #810B38;
+  --navy-dark: #60082A;
+  --brass: #541A1A;
+  --brass-dark: #3F1313;
+  --paper: #F1E2D1;
+  --paper-line: #DCC3AA;
+}
+
+html, body { background-color: var(--paper); }
+
+/* ============================================================
+   TOP BAR — persistent "logbook" header
+   ============================================================ */
+.dispatch-bar {
+  background: linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+  border-bottom: 3px solid var(--brass);
+}
+
+.dispatch-bar .stamp {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.18em;
+}
+
+/* ============================================================
+   TICKET STUB — signature element for role selection
+   ============================================================ */
+.ticket-stub {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  text-align: left;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  box-shadow: 0 1px 2px rgba(16, 24, 38, 0.06);
+}
+
+.ticket-stub:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px -10px rgba(16, 24, 38, 0.25);
+  border-color: var(--brass);
+}
+
+.ticket-stub .tear {
+  position: relative;
+  border-top: 1px dashed var(--paper-line);
+  margin: 0 18px;
+}
+
+/* perforation dots sitting on the dashed seam */
+.ticket-stub .tear::before,
+.ticket-stub .tear::after {
+  content: "";
+  position: absolute;
+  top: -7px;
+  width: 14px;
+  height: 14px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.ticket-stub .tear::before { left: -25px; }
+.ticket-stub .tear::after  { right: -25px; }
+
+.ticket-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: #94896f;
+}
+
+/* ============================================================
+   DATA / MONO — plate numbers, dates, times, booking refs
+   ============================================================ */
+.data-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   CARD ACCENT — brass top edge for panels
+   ============================================================ */
+.card-accent {
+  border-top: 4px solid var(--brass);
+}
+
+/* ============================================================
+   LEDGER TABLE
+   ============================================================ */
+.ledger-table thead tr { background: var(--navy); }
+.ledger-table tbody tr:nth-child(even) { background: #faf8f3; }
+.ledger-table tbody tr:hover { background: #f1ece0; }
+
+@media print {
+  .no-print  { display: none !important; }
+  .print-only { display: inline !important; }
+  body { background-color: white; color: black; padding: 0; }
+  main { max-width: 100% !important; padding: 0 !important; }
+}
+
+.print-only { display: none; }
+/* ============================================================
+   CALENDAR VIEW — ปฏิทินมุมมองรวมการจองรถ
+   ============================================================ */
+.cal-day {
+  position: relative;
+  min-height: 64px;
+  background: #fff;
+  border: 1px solid var(--paper-line);
+  border-radius: 8px;
+  padding: 4px 5px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .12s ease, background .12s ease;
+}
+.cal-day:hover { border-color: var(--brass); background: #faf6ef; }
+.cal-day.cal-day--empty { background: transparent; border: none; cursor: default; }
+.cal-day.cal-day--today { border-color: var(--navy); border-width: 2px; }
+.cal-day.cal-day--selected { background: #fdf3e7; border-color: var(--brass); border-width: 2px; }
+.cal-day.cal-day--past {
+  background: #f6f4f0;
+  color: #b8ad9c;
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.cal-day.cal-day--past:hover { border-color: var(--paper-line); background: #f6f4f0; }
+
+.cal-day-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b5d4f;
+}
+
+.cal-dots { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
+.cal-dot { width: 7px; height: 7px; border-radius: 50%; }
+.cal-dot--approved { background: #22c55e; }
+.cal-dot--pending  { background: #eab308; }
+.cal-more { font-size: 10px; color: #94896f; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Car Booking System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace'],
+          },
+          colors: {
+            navy: '#810B38',
+            navyDark: '#60082A',
+            brass: '#541A1A',
+            brassDark: '#3F1313',
+            paper: '#F1E2D1',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="bg-paper font-sans">
+
+  <!-- ==================== TOP BAR ==================== -->
+  <header class="dispatch-bar text-white">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="text-left">
+          <h1 class="text-lg md:text-xl font-bold leading-tight">ระบบจองรถหน่วยงาน</h1>
+          <p class="text-[11px] md:text-xs text-slate-300 leading-tight">Car Booking System</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== HOME PAGE ==================== -->
+  <div id="homePage" class="text-center py-12">
+    <div class="max-w-7xl mx-auto p-4">
+
+
+      <!-- Role Buttons -->
+      <div id="roleButtons" class="flex flex-col sm:flex-row justify-center gap-6 max-w-3xl mx-auto">
+        <button onclick="showUser()" class="ticket-stub flex-1 p-6 text-left relative">
+          <div class="flex items-center justify-between">
+          <div class="font-bold text-lg text-slate-800">User</div>
+          <span id="userNotifBadge" class="hidden bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 data-mono">🔔 0</span>
+          </div>
+          <br>
+
+          <div class="tear my-4"></div>
+          <p class="text-sm text-slate-500 mt-1">จองรถ · ตรวจสอบสถานะ · ยกเลิกการจอง</p>
+        </button>
+        <button onclick="showAdminLogin()" class="ticket-stub flex-1 p-6 text-left relative">
+          <div class="flex items-center justify-between">
+          <div class="font-bold text-lg text-slate-800">Admin</div>
+          <span id="adminNotifBadge" class="hidden bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 data-mono">🔔 0</span>
+          </div>
+          <br>
+          <div class="tear my-4"></div>
+          <p class="text-sm text-slate-500 mt-1">อนุมัติคำขอ · ดูสถิติ · ส่งออกรายงาน</p>
+        </button>
+      </div>
+       <!-- ==================== HOME DASHBOARD ==================== -->
+      <div id="homeDashboard" class="mt-10 text-left">
+
+        <!-- ข่าวประชาสัมพันธ์ -->
+        <div class="bg-white rounded-2xl shadow-md card-accent p-6 mb-8">
+          <h2 class="text-xl font-bold mb-4 text-slate-800"> ข่าวประชาสัมพันธ์</h2>
+
+          <div class="space-y-3">
+            <div class="border-l-4 border-navy bg-slate-50 p-3 rounded-r-lg text-sm">
+              กรุณาจองรถล่วงหน้าอย่างน้อย 1 วัน
+            </div>
+            <div class="border-l-4 border-navy bg-slate-50 p-3 rounded-r-lg text-sm">
+              รถตู้ 1 เข้าตรวจเช็กสภาพวันที่ <span class="data-mono">1 กรกฎาคม 2569</span>
+            </div>
+            <div class="border-l-4 border-navy bg-slate-50 p-3 rounded-r-lg text-sm">
+              ผู้ขับขี่ต้องมีใบอนุญาตขับขี่ที่ถูกต้อง
+            </div>
+          </div>
+        </div>
+        <!-- สรุปสถานะ -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+          <div class="bg-white rounded-2xl shadow-md card-accent p-5 text-center">
+            <div class="text-3xl">🚘</div>
+            <div class="text-2xl font-bold mt-2 data-mono" style="color:var(--ink)" id="dashTotal">-</div>
+            <div class="text-slate-500 text-sm mt-1">รถทั้งหมด</div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-md card-accent p-5 text-center">
+            <div class="text-3xl">🟢</div>
+            <div class="text-2xl font-bold mt-2 data-mono text-green-700" id="dashAvailable">-</div>
+            <div class="text-slate-500 text-sm mt-1">รถว่าง</div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-md card-accent p-5 text-center">
+            <div class="text-3xl">🚘</div>
+            <div class="text-2xl font-bold mt-2 data-mono text-navy" id="dashInUse">-</div>
+            <div class="text-slate-500 text-sm mt-1">กำลังใช้งาน</div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-md card-accent p-5 text-center">
+            <div class="text-3xl">📋</div>
+            <div class="text-2xl font-bold mt-2 data-mono text-yellow-700" id="dashWaiting">-</div>
+            <div class="text-slate-500 text-sm mt-1">รออนุมัติ</div>
+          </div>
+
+        </div>
+
+        <!-- รถในระบบ -->
+        <div class="bg-white rounded-2xl shadow-md card-accent p-6 mb-8">
+          <h2 class="text-xl font-bold mb-4 text-slate-800"> รถในระบบ</h2>
+
+          <div id="vehicleCards" class="grid md:grid-cols-2 gap-4">
+            <!-- generated by renderVehicleCards() in script.js -->
+          </div>
+        </div>
+
+        <!-- ปฏิทินมุมมองรวม (read-only, ไม่ต้อง login) -->
+        <div class="bg-white rounded-2xl shadow-md card-accent p-6 mb-8">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <h2 class="text-xl font-bold text-slate-800"> ปฏิทินการจองรถ</h2>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <select id="calendarVehicleFilter" onchange="calendarFilterChange()"
+                class="border border-slate-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-brass">
+                <option value="">ทุกคัน</option>
+              </select>
+
+              <div class="flex items-center gap-1">
+                <button onclick="calendarPrevMonth()"
+                  class="w-9 h-9 rounded-lg border border-slate-300 hover:border-brass hover:text-brass text-slate-600 flex items-center justify-center">‹</button>
+                <div id="calendarMonthLabel" class="data-mono font-semibold text-slate-700 w-36 text-center">-</div>
+                <button onclick="calendarNextMonth()"
+                  class="w-9 h-9 rounded-lg border border-slate-300 hover:border-brass hover:text-brass text-slate-600 flex items-center justify-center">›</button>
+              </div>
+
+              <button onclick="calendarGoToday()"
+                class="border border-slate-300 hover:border-brass hover:text-brass text-slate-600 text-sm px-3 py-2 rounded-lg">วันนี้</button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 text-xs text-slate-500 mb-3">
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>อนุมัติแล้ว</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span>รออนุมัติ</span>
+          </div>
+
+          <div id="calendarWeekHeader" class="grid grid-cols-7 gap-1.5 mb-1.5 text-center text-xs font-semibold text-slate-500"></div>
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+
+          <div id="calendarDayDetail" class="hidden mt-5 border-t border-slate-200 pt-4 text-left"></div>
+        </div>
+
+        <!-- สถานะการจอง (read-only, ไม่ต้อง login) -->
+        <div class="bg-white rounded-2xl shadow-md card-accent p-6 mb-8">
+          <h2 class="text-xl font-bold mb-4 text-slate-800 text-left"> สถานะการจอง</h2>
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="min-w-full text-sm whitespace-nowrap ledger-table">
+              <thead class="text-white">
+                <tr>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">แผนก</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">ผู้จอง</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">รถ</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">วันที่เริ่มใช้งาน</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">สถานะ</th>
+                </tr>
+              </thead>
+              <tbody id="homeBookingTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <!-- ขั้นตอนการใช้งาน -->
+        <div class="bg-white rounded-2xl shadow-md card-accent p-6">
+          <h2 class="text-xl font-bold mb-4 text-slate-800"> วิธีการใช้งาน</h2>
+
+          <div class="grid md:grid-cols-4 gap-4">
+            <div class="text-center">
+              <div class="w-10 h-10 mx-auto rounded-full bg-brass text-white flex items-center justify-center font-bold data-mono">1</div>
+              <div class="mt-2 text-sm">เลือก User</div>
+            </div>
+            <div class="text-center">
+              <div class="w-10 h-10 mx-auto rounded-full bg-brass text-white flex items-center justify-center font-bold data-mono">2</div>
+              <div class="mt-2 text-sm">เข้าสู่ระบบแผนก</div>
+            </div>
+            <div class="text-center">
+              <div class="w-10 h-10 mx-auto rounded-full bg-brass text-white flex items-center justify-center font-bold data-mono">3</div>
+              <div class="mt-2 text-sm">กรอกข้อมูลจองรถ</div>
+            </div>
+            <div class="text-center">
+              <div class="w-10 h-10 mx-auto rounded-full bg-brass text-white flex items-center justify-center font-bold data-mono">4</div>
+              <div class="mt-2 text-sm">รอ Admin อนุมัติ</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /homeDashboard -->
+
+    </div>
+  </div>
+  <!-- /homePage -->
+
+      <br>
+
+      <!-- ==================== ADMIN LOGIN ==================== -->
+      <div id="adminLoginPanel" class="hidden max-w-md mx-auto p-6 bg-white rounded-xl card-accent shadow-md mt-6">
+        <h2 class="font-bold text-xl mb-3 text-slate-800">เข้าสู่ระบบ</h2>
+        <br>
+        <input id="adminPassword" type="password" placeholder="รหัสผ่าน Admin"
+          class="border border-slate-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-brass">
+        <br><br>
+        <button onclick="adminLoginSubmit()"
+          class="mt-1 bg-navy hover:bg-navyDark text-white px-8 py-3 rounded-lg shadow w-full font-medium">
+          เข้าสู่ระบบ
+        </button>
+        <button onclick="goHome()"
+        class="mt-1 bg-slate-500 hover:bg-slate-600 text-white px-8 py-3 rounded-lg shadow w-full font-medium">
+        กลับหน้าหลัก
+        </button>
+      </div>
+
+      <!-- ==================== ADMIN PANEL ==================== -->
+      <div id="adminPanel" class="hidden max-w-4xl mx-auto">
+        <!-- แถบ session — เปลี่ยนเนื้อหาแบบไดนามิกตามสถานะ login ดูใน applySessionState() -->
+        <div id="adminViewSwitcher" class="hidden flex items-center justify-between bg-white rounded-xl shadow border border-slate-200 p-4 mt-8"></div>
+
+        <div class="mt-8 bg-white rounded-xl shadow border border-slate-200 p-6 text-left">
+          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+             <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            สถิติการจอง 
+            <span id="adminPanelNotifBadge" class="hidden bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 data-mono">🔔 0 รออนุมัติ</span>
+          </h2>
+
+          <div class="flex items-center gap-2">
+            <button onclick="exportPDF()"
+              class="flex items-center gap-1.5 bg-white border border-slate-300 hover:border-brass hover:text-brass text-slate-700 text-sm px-4 py-2 rounded-lg shadow-sm transition-all">
+              📄 Export PDF
+            </button>
+            <button onclick="logoutAdmin()"
+              class="flex items-center gap-1.5 bg-red-50 border border-red-300 hover:bg-red-100 text-red-600 text-sm px-4 py-2 rounded-lg shadow-sm transition-all">
+              ออกจากระบบ
+            </button>
+          </div>
+          </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <div class="bg-blue-50 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold data-mono text-blue-700" id="totalBooking">-</div>
+            <div class="text-xs text-blue-600 mt-1">จำนวนการจอง</div>
+          </div>
+          <div class="bg-green-50 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold data-mono text-green-700" id="approveBooking">-</div>
+            <div class="text-xs text-green-600 mt-1">อนุมัติ</div>
+          </div>
+          <div class="bg-red-50 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold data-mono text-red-700" id="rejectBooking">-</div>
+            <div class="text-xs text-red-600 mt-1">ไม่อนุมัติ</div>
+          </div>
+          <div class="bg-yellow-50 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold data-mono text-yellow-700" id="waitingBooking">-</div>
+            <div class="text-xs text-yellow-600 mt-1">รออนุมัติ</div>
+          </div>
+          <div class="bg-slate-100 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold data-mono text-slate-600" id="cancelBooking">-</div>
+            <div class="text-xs text-slate-500 mt-1">ยกเลิก</div>
+          </div>
+        </div>
+        </div>
+
+        <div class="mt-8 bg-white rounded-xl shadow border border-slate-200 p-6 text-left">
+          
+          <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+          <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+            สถานะการจอง
+            <span id="adminPanelNotifBadge" class="hidden bg-red-500 text-white text-xs font-bold rounded-full px-2 py-1 data-mono">🔔 0 รออนุมัติ</span>
+          </h2>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="min-w-full text-sm whitespace-nowrap ledger-table">
+            <thead class="text-white">
+              <tr>
+                <th class="border-b border-navyDark px-4 py-3">แผนก</th>
+                <th class="border-b border-navyDark px-4 py-3">ผู้จอง</th>
+                <th class="border-b border-navyDark px-4 py-3 text-center">รถ</th>
+                <th class="border-b border-navyDark px-4 py-3">วันที่เริ่มใช้งาน</th>
+                <th class="border-b border-navyDark px-4 py-3">เวลาที่เริ่มใช้งาน</th>
+                <th class="border-b border-navyDark px-4 py-3">วันที่ต้องการคืนรถ</th>
+                <th class="border-b border-navyDark px-4 py-3">เวลาที่ต้องการคืนรถ</th>
+                <th class="border-b border-navyDark px-4 py-3">จำนวนผู้โดยสาร</th>
+                <th class="border-b border-navyDark px-4 py-3">สถานะ</th>
+                <th class="border-b border-navyDark px-4 py-3">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="bookingTable"></tbody>
+          </table>
+        </div>
+
+        <br><br>
+        </div>
+
+        <!-- Vehicle Manager Panel — แสดงตลอดเวลาใน Admin -->
+        <div id="vehicleManagerPanel" class="mt-8 bg-white rounded-xl shadow border border-slate-200 p-6 text-left">
+          <h2 class="text-xl font-bold text-slate-800 mb-5">จัดการรถในระบบ</h2>
+
+          <!-- Add new vehicle -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-4 mb-5">
+            <h3 class="font-semibold text-slate-700 mb-3">➕ เพิ่มรถใหม่</h3>
+            <div class="grid md:grid-cols-4 gap-3 items-end">
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">ชื่อรถ</label>
+                <input id="newVehicleName" type="text" placeholder="เช่น รถตู้ 3"
+                  class="border border-slate-300 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-brass">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">ทะเบียน</label>
+                <input id="newVehiclePlate" type="text" placeholder="เช่น กค-9999"
+                  class="border border-slate-300 p-2 rounded-lg w-full text-sm data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+              </div>
+              <div>
+                <label class="block text-xs text-slate-500 mb-1">ประเภทรถ</label>
+                <select id="newVehicleType" class="border border-slate-300 p-2 rounded-lg w-full text-sm focus:outline-none">
+                  <option value="van">รถตู้ 🚐</option>
+                  <option value="pickup">รถกระบะ 🛻</option>
+                  <option value="sedan">รถเก๋ง 🚗</option>
+                </select>
+              </div>
+              <button onclick="addNewVehicle()"
+                class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-sm font-medium shadow">
+                เพิ่มรถ
+              </button>
+            </div>
+          </div>
+
+          <!-- Vehicle list table -->
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="min-w-full text-sm ledger-table">
+              <thead class="text-white">
+                <tr>
+                  <th class="border-b border-navyDark px-4 py-3 text-center w-12">ประเภท</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-left">ชื่อรถ</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">ทะเบียน</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">สถานะ</th>
+                  <th class="border-b border-navyDark px-4 py-3 text-center">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="vehicleManagerTable"></tbody>
+            </table>
+          </div>
+          <p class="text-xs text-slate-400 mt-3">* รถที่ปิดซ่อมบำรุงจะไม่แสดงในตัวเลือกฟอร์มจอง และจะแสดง 🔧 บนหน้าหลัก</p>
+        </div>
+        <!-- /vehicleManagerPanel -->
+
+
+
+      </div>
+      <!-- /adminPanel -->
+
+      <!-- ==================== DEPARTMENT LOGIN ==================== -->
+      <div id="loginPanel" class="hidden max-w-5xl mx-auto bg-white rounded-xl card-accent shadow-md p-6">
+        <h2 class="font-bold text-xl mb-3 text-left text-slate-800">เข้าสู่ระบบ</h2>
+        <br>
+        <div class="grid md:grid-cols-2 gap-3">
+          <select id="loginDepartment" class="border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brass">
+            <option value="">เลือกแผนก</option>
+            <option>IT</option>
+            <option>HR</option>
+            <option>การเงิน</option>
+            <option>พัสดุ</option>
+            <option>วิจัย</option>
+          </select>
+          <input id="departmentPassword" type="password"
+            class="border border-slate-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="รหัสผ่าน">
+        </div>
+        <br><br>
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <button onclick="departmentLogin()"
+                class="flex-1 sm:max-w-xs mt-1 bg-navy hover:bg-navyDark text-white px-8 py-3 rounded-lg shadow font-medium">           
+                เข้าสู่ระบบ
+            </button>
+        </div>
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <button onclick="goHome()"
+                class="flex-1 sm:max-w-xs mt-1 bg-slate-500 hover:bg-slate-600 text-white px-8 py-3 rounded-lg shadow font-medium">                กลับหน้าหลัก
+            </button>
+        </div>
+      </div>
+      <!-- /loginPanel -->
+
+     
+  <!-- ==================== USER PANEL ==================== -->
+  <div id="userPanel" class="hidden max-w-4xl mx-auto">
+    <div class="flex flex-col gap-4">
+
+      <!-- แถบ session — เปลี่ยนเนื้อหาแบบไดนามิกตามสถานะ login ดูใน applySessionState() -->
+      <div id="userViewSwitcher" class="hidden flex items-center justify-between bg-white rounded-xl shadow card-accent p-4 mt-6"></div>
+
+      <!-- Search Box -->
+      <div class="bg-white rounded-xl shadow card-accent p-6 mt-6">
+        <h2 class="text-xl font-bold mb-4 text-left text-slate-800">ตรวจสอบสถานะการจอง</h2>
+        <div class="flex flex-col md:flex-row gap-3 items-center">
+          <input id="searchName" type="text" placeholder="ชื่อผู้จอง"
+            class="border border-slate-300 rounded-lg p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-brass">
+          <input id="searchDate" type="date"
+            class="border border-slate-300 rounded-lg p-3 flex-1 data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+          <button onclick="searchBooking()"
+            class="bg-navy hover:bg-navyDark text-white px-8 py-3 rounded-lg shadow transition font-medium">
+            ค้นหา
+          </button>
+          <button onclick="clearSearch()"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-lg shadow transition">
+            ล้างค่า
+          </button>
+        </div>
+        <div id="searchResult" class="mt-5"></div>
+      </div>
+
+      <!-- Public Booking Table -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 card-accent">
+        <h2 class="text-xl font-bold mb-4 text-left text-slate-800 flex items-center gap-3">
+          สถานะการจอง
+          <span id="userPanelNotifBadge" onclick="dismissUserNotifBadge()" class="hidden bg-red-500 hover:bg-red-600 cursor-pointer text-white text-xs font-bold rounded-full px-2 py-1 data-mono" title="คลิกเพื่ออ่านแล้ว">🔔 0 รายการใหม่</span>
+        </h2>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <table class="w-full table-fixed border-collapse text-center text-sm ledger-table">
+            <thead class="text-white">
+              <tr>
+                <th class="p-2 w-16">แผนก</th>
+                <th class="p-2 w-20">ผู้จอง</th>
+                <th class="p-2 w-36">รถ</th>
+                <th class="p-2 w-24">วันที่เริ่มใช้งาน</th>
+                <th class="p-2 w-20">เวลาเริ่มใช้งาน</th>
+                <th class="p-2 w-24">วันที่ต้องการคืนรถ</th>
+                <th class="p-2 w-20">เวลาที่ต้องการคืนรถ</th>
+                <th class="p-2 w-20">จำนวนผู้โดยสาร</th>
+                <th class="p-2 w-20">สถานะ</th>
+                <th class="p-2 w-20">ยกเลิก</th>
+              </tr>
+            </thead>
+            <tbody id="publicBookingTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 card-accent">
+        <h2 class="font-bold text-xl mb-3 text-left text-slate-800">แบบฟอร์มจองรถ</h2>
+        <div class="grid md:grid-cols-2 gap-3">
+
+          <input id="name"
+            class="border border-slate-300 p-3 rounded-lg w-full md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="ชื่อผู้จอง">
+
+          <input id="email" type="email"
+            class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="อีเมลผู้จอง (ใช้แจ้งผลอนุมัติ/ไม่อนุมัติ)">
+
+          <select id="department" disabled
+            class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2 bg-slate-50">
+            <option value="">เลือกแผนก</option>
+            <option>IT</option>
+            <option>HR</option>
+            <option>การเงิน</option>
+            <option>พัสดุ</option>
+            <option>วิจัย</option>
+          </select>
+
+          <select id="car" class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass">
+            <option value="">เลือกรถ</option>
+            <option value="รถตู้ 1 (กข-1234)">รถตู้ 1 (กข-1234)</option>
+            <option value="รถตู้ 2 (กข-5678)">รถตู้ 2 (กข-5678)</option>
+            <option value="รถกระบะ 1 (บย-1111)">รถกระบะ 1 (บย-1111)</option>
+            <option value="รถกระบะ 2 (บย-2222)">รถกระบะ 2 (บย-2222)</option>
+          </select>
+
+          <!-- Conflict Warning -->
+          <div id="conflictWarning" class="hidden md:col-span-2 bg-orange-50 border border-orange-300 rounded-lg p-4 text-sm text-orange-800"></div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1 text-left">วันที่เริ่มใช้งาน</label>
+            <input id="startDate" type="date"
+              class="border border-slate-300 p-3 rounded-lg w-full data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1 text-left">เวลาเริ่มใช้งาน</label>
+            <input id="startTime" type="time"
+              class="border border-slate-300 p-3 rounded-lg w-full data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1 text-left">วันที่คืนรถ</label>
+            <input id="endDate" type="date"
+              class="border border-slate-300 p-3 rounded-lg w-full data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1 text-left">เวลาคืนรถ</label>
+            <input id="endTime" type="time"
+              class="border border-slate-300 p-3 rounded-lg w-full data-mono focus:outline-none focus:ring-2 focus:ring-brass">
+          </div>
+
+          <textarea id="purpose"
+            class="border border-slate-300 p-3 rounded-lg w-full mt-3 md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="วัตถุประสงค์"></textarea>
+
+          <input id="passenger" type="number"
+            class="border border-slate-300 p-3 rounded-lg mt-3 w-full md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="จำนวนผู้โดยสาร">
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1 text-left">ตั้งรหัสส่วนตัว (สำหรับยกเลิกการจองนี้)</label>
+            <input id="bookingPassword" type="password"
+            
+            class="border border-slate-300 p-3 rounded-lg mt-3 w-full md:col-span-2 focus:outline-none focus:ring-2 focus:ring-brass"
+            placeholder="ตั้งรหัสไว้ ใช้ยืนยันตอนยกเลิกการจองนี้เท่านั้น"> <br>
+            <p id="bookingPasswordStrength" class="text-xs mt-1 text-left font-medium"></p>
+            <p class="text-xs text-slate-400 mt-1 text-left">โปรดจำรหัสนี้ไว้ — ใช้เฉพาะการจองนี้รายการเดียว ไม่เกี่ยวกับรหัสแผนก</p>
+            <p class="text-xs text-slate-400 text-left">รหัสต้องมีอย่างน้อย 6 ตัวอักษร ผสมตัวเลขกับตัวอักษร และห้ามเป็นรหัสที่เดาง่าย เช่น 123456</p>
+          </div>
+
+          <button onclick="saveBooking()"
+            class="bg-brass hover:bg-brassDark text-white p-3 rounded-lg w-full md:col-span-2 font-medium shadow">
+            ส่งคำขอจองรถ
+          </button>
+
+          <button onclick="logoutDepartment()"
+            class="bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg w-full md:col-span-2">
+            ออกจากระบบ
+          </button>
+
+        </div>
+      </div>
+      <!-- /Booking Form -->
+
+    </div>
+  </div>
+  <!-- /userPanel -->
+
+  <!-- ==================== REJECT REASON MODAL ==================== -->
+  <div id="overlapModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-xl card-accent w-full max-w-md p-6 text-left">
+      <div class="flex items-start gap-3 mb-3">
+        <div class="text-2xl">⚠️</div>
+        <h3 class="font-bold text-lg text-slate-800">รถคันนี้มีการจองซ้อนทับ</h3>
+      </div>
+
+      <div id="overlapModalList" class="text-xs font-mono text-orange-700 bg-orange-50 rounded-lg p-3 mb-3 whitespace-pre-wrap leading-relaxed"></div>
+
+      <p class="text-sm text-slate-600 mb-1">ต้องการส่งคำขอจองต่อหรือไม่?</p>
+      <p class="text-xs text-slate-400 mb-5">Admin จะเห็น conflict นี้ในระบบ และอาจไม่อนุมัติคำขอนี้</p>
+
+      <div class="flex gap-3">
+        <button onclick="closeOverlapModal()"
+          class="flex-1 bg-gray-200 hover:bg-gray-300 text-slate-700 p-3 rounded-lg font-medium">
+          ยกเลิก
+        </button>
+        <button onclick="confirmOverlapAndSubmit()" id="confirmOverlapBtn"
+          class="flex-1 bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-lg font-medium shadow">
+          ส่งคำขอต่อ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cancelModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-xl card-accent w-full max-w-md p-6 text-left">
+      <h3 class="font-bold text-lg mb-1 text-slate-800">ยืนยันการยกเลิกการจอง</h3>
+      <p class="text-xs text-slate-400 mb-4">กรอกรหัสส่วนตัวที่ตั้งไว้ตอนจอง พร้อมระบุเหตุผลที่ยกเลิก</p>
+
+      <label class="text-sm font-medium text-slate-700 mb-1 block">รหัสส่วนตัว</label>
+      <input id="cancelPasswordInput" type="password"
+        class="border border-slate-300 p-3 rounded-lg w-full text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-brass"
+        placeholder="รหัสที่ตั้งไว้ตอนจองรายการนี้">
+
+      <label class="text-sm font-medium text-slate-700 mb-2 block">เหตุผลที่ยกเลิก</label>
+      <div class="space-y-2 mb-3" id="cancelReasonOptions">
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="cancelReason" value="ไม่ต้องใช้รถแล้ว" class="mt-1">
+          <span>ไม่ต้องใช้รถแล้ว</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="cancelReason" value="จองผิดวันที่/ผิดคันรถ" class="mt-1">
+          <span>จองผิดวันที่/ผิดคันรถ</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="cancelReason" value="เปลี่ยนแผนงาน/เลื่อนกำหนดการ" class="mt-1">
+          <span>เปลี่ยนแผนงาน/เลื่อนกำหนดการ</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="cancelReason" value="อื่นๆ" id="cancelReasonOther" class="mt-1">
+          <span>อื่นๆ (ระบุ)</span>
+        </label>
+      </div>
+
+      <textarea id="cancelReasonOtherText" disabled
+        class="border border-slate-300 p-3 rounded-lg w-full text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brass"
+        placeholder="ระบุเหตุผลเพิ่มเติม..." rows="3"></textarea>
+
+      <div id="cancelReasonError" class="hidden text-red-600 text-xs mt-2"></div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeCancelModal()"
+          class="flex-1 bg-gray-200 hover:bg-gray-300 text-slate-700 p-3 rounded-lg font-medium">
+          ยกเลิก
+        </button>
+        <button onclick="confirmCancel()" id="confirmCancelBtn"
+          class="flex-1 bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg font-medium shadow">
+          ยืนยันยกเลิกการจอง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="rejectModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-xl card-accent w-full max-w-md p-6 text-left">
+      <h3 class="font-bold text-lg mb-4 text-slate-800">ระบุเหตุผลที่ไม่อนุมัติ</h3>
+
+      <div class="space-y-2 mb-3" id="rejectReasonOptions">
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="rejectReason" value="รถไม่ว่าง / ช่วงเวลาซ้อนกับการจองอื่น" class="mt-1">
+          <span>รถไม่ว่าง / ช่วงเวลาซ้อนกับการจองอื่น</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="rejectReason" value="ข้อมูลไม่ครบถ้วน/ไม่ชัดเจน" class="mt-1">
+          <span>ข้อมูลไม่ครบถ้วน/ไม่ชัดเจน</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="rejectReason" value="ไม่ตรงตามนโยบายการใช้รถ" class="mt-1">
+          <span>ไม่ตรงตามนโยบายการใช้รถ</span>
+        </label>
+        <label class="flex items-start gap-2 text-sm">
+          <input type="radio" name="rejectReason" value="อื่นๆ" id="rejectReasonOther" class="mt-1">
+          <span>อื่นๆ (ระบุ)</span>
+        </label>
+      </div>
+
+      <textarea id="rejectReasonOtherText" disabled
+        class="border border-slate-300 p-3 rounded-lg w-full text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brass"
+        placeholder="ระบุเหตุผลเพิ่มเติม..." rows="3"></textarea>
+
+      <div id="rejectReasonError" class="hidden text-red-600 text-xs mt-2"></div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="closeRejectModal()"
+          class="flex-1 bg-gray-200 hover:bg-gray-300 text-slate-700 p-3 rounded-lg font-medium">
+          ยกเลิก
+        </button>
+        <button onclick="confirmReject()"
+          class="flex-1 bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg font-medium shadow">
+          ยืนยันไม่อนุมัติ
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script src="script.js"></script>
+
+</html>
